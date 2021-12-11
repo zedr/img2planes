@@ -11,5 +11,12 @@ setup(
         'console_scripts': ['img2planes=img2planes:main']
     },
     install_requires=['Pillow'],
-    tests_require=['pytest']
+    tests_require=['pytest'],
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Developers',
+        'Topic :: Software Development :: Code Generators',
+        'License :: OSI Approved :: BSD License',
+        'Programming Language :: Python :: 3',
+    ]
 )
