@@ -4,6 +4,7 @@ from setuptools import setup
 setup(
     name='img2planes',
     version='1.0',
+    url='https://github.com/zedr/img2planes',
     author='Rigel Di Scala',
     author_email='zedr@zedr.com',
     py_modules=['img2planes'],
