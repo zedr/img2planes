@@ -189,7 +189,7 @@ def main():
         sys.stderr.write('height: %s\n' % str(img.height))
         sys.stderr.write('planes: %s\n' % n_planes)
         sys.stderr.write('words: %s\n' % img.n_words)
-        sys.stderr.write('n. colors: %s\n' % len(img.palette))
+        sys.stderr.write('colors: %s\n' % len(img.palette))
 
 
 if __name__ == "__main__":

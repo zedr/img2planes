@@ -1,4 +1,4 @@
-.PHONY: default clean deps
+.PHONY: default clean install test
 
 ENV=.env
 _PYTHON=python3
@@ -17,6 +17,9 @@ ${PYTHON}:
 install: ${PYTHON}
 	@echo "Installing img2planes in local virtualenv" >&2
 	@${PYTHON} -m pip install .
+
+test: ${PYTHON}
+	@${PYTHON} setup.py test
 
 clean:
 	@rm -rf .env
