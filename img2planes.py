@@ -8,7 +8,7 @@ from collections import defaultdict
 from PIL import Image
 
 
-class Plane(object):
+class Plane:
     def __init__(self, plane_data, width):
         self._original_width = width
         self._data, padding = padded(plane_data, width)
