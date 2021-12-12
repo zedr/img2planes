@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 
 import sys
 import argparse
@@ -6,23 +6,6 @@ from ast import literal_eval
 from collections import defaultdict
 
 from PIL import Image
-
-parser = argparse.ArgumentParser()
-parser.add_argument('IMAGE_NAME')
-parser.add_argument(
-    '--format',
-    '-f',
-    dest='format',
-    default='bitplanes',
-    help='Output format: bitplanes, array'
-)
-parser.add_argument(
-    '--verbose',
-    '-v',
-    dest='verbose',
-    default='False',
-    action='store_true'
-)
 
 
 class Plane(object):
@@ -170,6 +153,22 @@ class PlaneImage(object):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('IMAGE_NAME')
+    parser.add_argument(
+        '--format',
+        '-f',
+        dest='format',
+        default='bitplanes',
+        help='Output format: bitplanes, array'
+    )
+    parser.add_argument(
+        '--verbose',
+        '-v',
+        dest='verbose',
+        default='False',
+        action='store_true'
+    )
     args = parser.parse_args()
     img = PlaneImage(args.IMAGE_NAME)
     if args.format == 'bitplanes':
