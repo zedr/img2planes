@@ -138,7 +138,7 @@ class PlaneImage(object):
         return ((self.width * self.height) / 16) * len(self.planes)
 
     def as_c_array(self, name="image_data"):
-        return "UWORD %s[] = { %s };" % (
+        return "UWORD __chip %s[] = { %s };" % (
             name,
             ', '.join(plane.comma_sep_words() for plane in self.planes)
         )
