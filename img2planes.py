@@ -100,7 +100,7 @@ def worded(plane):
         yield list_to_word(word)
 
 
-class PlaneImage(object):
+class PlaneImage:
     def __init__(self, name):
         img = Image.open(name).convert('RGB')
         self.height = img.height
