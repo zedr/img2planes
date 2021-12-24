@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
+import io
 import sys
 import argparse
 from ast import literal_eval
 from collections import defaultdict
 
-from PIL import Image
+from PIL import Image, ImageCms
 
 
 class Plane:
@@ -102,7 +103,13 @@ def worded(plane):
 
 class PlaneImage:
     def __init__(self, name):
-        img = Image.open(name).convert('RGB')
+        img = self._img = Image.open(name).convert('RGB')
+        icc = img.info.get('icc_profile', '')
+        if icc:
+            io_handle = io.BytesIO(icc)     # virtual file
+            src_profile = ImageCms.ImageCmsProfile(io_handle)
+            dst_profile = ImageCms.createProfile('sRGB')
+            img = ImageCms.profileToProfile(img, src_profile, dst_profile)
         self.height = img.height
         arr = list(image_to_array(img))
         self._palette = tuple(create_palette(arr))
@@ -160,7 +167,7 @@ def main():
         '-f',
         dest='format',
         default='bitplanes',
-        help='Output format: bitplanes, array'
+        help='Output format: bitplanes, array, image'
     )
     parser.add_argument(
         '--verbose',
@@ -179,8 +186,11 @@ def main():
         print(img.as_c_array())
         print(img.as_c_colors())
     else:
-        sys.stderr.write('Wrong format: ' + args.format)
-        sys.exit(1)
+        try:
+            img._img.save(sys.stdout, args.format)
+        except KeyError:
+            print(f'ERROR: unsupported format: {args.format}', file=sys.stderr)
+            sys.exit(1)
 
     if args.verbose:
         n_planes = len(img.planes)
@@ -188,7 +198,7 @@ def main():
         sys.stderr.write('padded width: %s\n' % str(img.width))
         sys.stderr.write('height: %s\n' % str(img.height))
         sys.stderr.write('planes: %s\n' % n_planes)
-        sys.stderr.write('words: %s\n' % img.n_words)
+        sys.stderr.write('words: %s\n' % int(img.n_words))
         sys.stderr.write('colors: %s\n' % len(img.palette))
 
 

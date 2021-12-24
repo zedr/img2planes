@@ -12,13 +12,13 @@ default: ${PYTHON}
 ${PYTHON}:
 	@echo "Creating Python ${PYTHON_VERSION} environment..." >&2
 	@${_PYTHON} -m venv ${ENV}
-	@${PYTHON} -m pip install -U pip
+	@${PYTHON} -m pip install -U pip wheel
 
 install: ${PYTHON}
 	@echo "Installing img2planes in local virtualenv" >&2
 	@${PYTHON} -m pip install .
 
-test: ${PYTHON}
+test: ${PYTHON} install
 	@${PYTHON} setup.py test
 
 clean:

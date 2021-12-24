@@ -4,6 +4,7 @@ from img2planes import PlaneImage, padded
 _dirname = os.path.dirname(__file__)
 test_png_path = os.path.join(_dirname, 'fixtures', 'test.png')
 test2_png_path = os.path.join(_dirname, 'fixtures', 'test2.png')
+test32_png_path = os.path.join(_dirname, 'fixtures', 'test32.png')
 
 
 def test_size():
@@ -46,11 +47,18 @@ def test_padding():
     ]
 
 
-def test_c_colors():
+def test_c_colors_6():
     img = PlaneImage(test_png_path)
     assert img.as_c_colors() == "UWORD colordata[] = { 0xfff, 0x000, 0x01f, 0xf00, 0x0f4, 0xff0 };"
 
 
-def test_c_colors_2():
+def test_c_colors_8():
     img = PlaneImage(test2_png_path)
     assert img.as_c_colors() == "UWORD colordata[] = { 0xa20, 0x700, 0x000, 0xf00, 0xf75, 0x333, 0x999, 0xfff };"
+
+
+def test_c_colors_32():
+    img = PlaneImage(test_png_path)
+    #for c1, c2 in zip(img.palette, img.reduced_palette):
+    #    print(c1, c2)
+    assert False
