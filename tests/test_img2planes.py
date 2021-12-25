@@ -1,10 +1,20 @@
+import re
 import os
+import subprocess
+from ast import literal_eval
+from distutils.spawn import find_executable
+
+import pytest
+
 from img2planes import PlaneImage, padded
 
+
 _dirname = os.path.dirname(__file__)
+
 test_png_path = os.path.join(_dirname, 'fixtures', 'test.png')
 test2_png_path = os.path.join(_dirname, 'fixtures', 'test2.png')
 test32_png_path = os.path.join(_dirname, 'fixtures', 'test32.png')
+
 
 
 def test_size():
@@ -58,7 +68,30 @@ def test_c_colors_8():
 
 
 def test_c_colors_32():
-    img = PlaneImage(test_png_path)
-    #for c1, c2 in zip(img.palette, img.reduced_palette):
-    #    print(c1, c2)
-    assert False
+    convert_available = find_executable('convert')
+    if not convert_available:
+        pytest.skip()
+
+    proc = subprocess.run(
+        [
+            'convert',
+            test32_png_path,
+            '-format',
+            '%c',
+            '-colorspace',
+            'sRGB',
+            'histogram:info:-'
+        ],
+        capture_output=True,
+        text=True
+    )
+    found = re.findall(r'(\d+): .* #(\w{6})', proc.stdout)
+    seq = sorted(((int(count), col) for count, col in found), reverse=True)
+    colors = [
+        tuple(literal_eval('0x' + val) for val in el[1][1::2])
+        for el in seq
+    ]
+
+    img = PlaneImage(test32_png_path)
+    for a, b in zip(colors, img.reduced_palette):
+        assert a == b

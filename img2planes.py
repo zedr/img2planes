@@ -106,7 +106,7 @@ class PlaneImage:
         img = self._img = Image.open(name).convert('RGB')
         icc = img.info.get('icc_profile', '')
         if icc:
-            io_handle = io.BytesIO(icc)     # virtual file
+            io_handle = io.BytesIO(icc)
             src_profile = ImageCms.ImageCmsProfile(io_handle)
             dst_profile = ImageCms.createProfile('sRGB')
             img = ImageCms.profileToProfile(img, src_profile, dst_profile)
