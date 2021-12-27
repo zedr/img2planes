@@ -6,15 +6,13 @@ from distutils.spawn import find_executable
 
 import pytest
 
-from img2planes import PlaneImage, padded
-
+from img2planes import PlaneImage, padded, cropped
 
 _dirname = os.path.dirname(__file__)
 
 test_png_path = os.path.join(_dirname, 'fixtures', 'test.png')
 test2_png_path = os.path.join(_dirname, 'fixtures', 'test2.png')
 test32_png_path = os.path.join(_dirname, 'fixtures', 'test32.png')
-
 
 
 def test_size():
@@ -57,6 +55,25 @@ def test_padding():
     ]
 
 
+def test_crop():
+    arr = [
+        0, 0, 0, 0, 0, 0, 0,
+        0, 1, 2, 3, 0, 0, 0,
+        0, 4, 5, 6, 0, 0, 0,
+        0, 7, 8, 9, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0
+    ]
+    new_arr = cropped(arr, 7, 1, 1, 3, 3)
+    assert new_arr == [1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+
+def test_crop2():
+    arr = list(range(3016))
+    new_arr = cropped(arr, 52, 0, 0, 16, 2)
+    #assert len(new_arr) == 32
+    assert new_arr == list(range(16)) + list(range(52, 52 + 16))
+
+
 def test_c_colors_6():
     img = PlaneImage(test_png_path)
     assert img.as_c_colors() == "UWORD colordata[] = { 0xfff, 0x000, 0x01f, 0xf00, 0x0f4, 0xff0 };"
@@ -95,3 +112,9 @@ def test_c_colors_32():
     img = PlaneImage(test32_png_path)
     for a, b in zip(colors, img.reduced_palette):
         assert a == b
+
+
+def test_cropped():
+    img = PlaneImage(test2_png_path)
+    cropped_img = PlaneImage(test2_png_path, crop=(0, 0, 16, 2))
+    assert img.as_c_array() == cropped_img.as_c_array()

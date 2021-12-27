@@ -4,9 +4,12 @@ import io
 import sys
 import argparse
 from ast import literal_eval
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 
 from PIL import Image, ImageCms
+
+
+CropBox = namedtuple('CropBox', 'x y width height')
 
 
 class Plane:
@@ -101,21 +104,36 @@ def worded(plane):
         yield list_to_word(word)
 
 
+def cropped(arr, orig_width, x, y, width, height):
+    _arr = arr[:(orig_width * (y + (height - 1))) + (x + width)]
+    _arr = _arr[(orig_width * y) + x:]
+    new_arr = []
+    rest = orig_width - width
+    while _arr:
+        new_arr += _arr[:width]
+        _arr = _arr[width + rest:]
+
+    return new_arr
+
+
 class PlaneImage:
-    def __init__(self, name):
+    def __init__(self, name, crop=None):
         img = self._img = Image.open(name).convert('RGB')
         icc = img.info.get('icc_profile', '')
+        self._height = CropBox(*crop).height if crop else img.height
         if icc:
             io_handle = io.BytesIO(icc)
             src_profile = ImageCms.ImageCmsProfile(io_handle)
             dst_profile = ImageCms.createProfile('sRGB')
             img = ImageCms.profileToProfile(img, src_profile, dst_profile)
-        self.height = img.height
         arr = list(image_to_array(img))
         self._palette = tuple(create_palette(arr))
         chunky = list(create_chunky_plane(arr, self._palette))
         self._planes = tuple(
-            Plane(plane, img.width) for plane in create_bitplanes(chunky)
+            Plane(plane, CropBox(*crop).width if crop else img.width)
+            for plane in create_bitplanes(
+                cropped(chunky, img.width, *crop) if crop else chunky
+            )
         )
 
     @property
@@ -125,6 +143,10 @@ class PlaneImage:
     @property
     def width(self):
         return self._planes[0]._width
+
+    @property
+    def height(self):
+        return self._height
 
     @property
     def original_width(self):
@@ -170,6 +192,13 @@ def main():
         help='Output format: bitplanes, array, image'
     )
     parser.add_argument(
+        '--crop',
+        '-c',
+        dest='crop',
+        default=None,
+        help='Crop to rectangle. Format: x,y,width,height'
+    )
+    parser.add_argument(
         '--verbose',
         '-v',
         dest='verbose',
@@ -177,7 +206,11 @@ def main():
         action='store_true'
     )
     args = parser.parse_args()
-    img = PlaneImage(args.IMAGE_NAME)
+    if args.crop:
+        crop_box = tuple(int(num) for num in args.crop.split(','))
+    else:
+        crop_box = None
+    img = PlaneImage(args.IMAGE_NAME, crop=crop_box)
     if args.format == 'bitplanes':
         for idx, plane in enumerate(img.planes, 1):
             print('%s.' % idx)
