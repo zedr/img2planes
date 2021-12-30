@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='img2planes',
-    version='0.3.0',
+    version='0.4.0',
     url='https://github.com/zedr/img2planes',
     author='Rigel Di Scala',
     author_email='zedr@zedr.com',
