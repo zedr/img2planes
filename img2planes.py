@@ -185,11 +185,18 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('IMAGE_NAME')
     parser.add_argument(
+        '--name',
+        '-n',
+        dest='name',
+        default='image_data',
+        help='Name of the data structure instance (for the "array" format)'
+    )
+    parser.add_argument(
         '--format',
         '-f',
         dest='format',
         default='bitplanes',
-        help='Output format: bitplanes, array, image'
+        help='Output format. Choose from: bitplanes, array, image'
     )
     parser.add_argument(
         '--crop',
@@ -197,6 +204,14 @@ def main():
         dest='crop',
         default=None,
         help='Crop to rectangle. Format: x,y,width,height'
+    )
+    parser.add_argument(
+        '--no-colors',
+        '-C',
+        dest='no_colors',
+        default=False,
+        action='store_true',
+        help='Do not output the color data (for the "array" format)'
     )
     parser.add_argument(
         '--verbose',
@@ -216,8 +231,9 @@ def main():
             print('%s.' % idx)
             print(''.join(plane.as_dotted_image()))
     elif args.format == 'array':
-        print(img.as_c_array())
-        print(img.as_c_colors())
+        print(img.as_c_array(name=args.name))
+        if not args.no_colors:
+            print(img.as_c_colors())
     else:
         try:
             img._img.save(sys.stdout, args.format)

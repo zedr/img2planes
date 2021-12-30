@@ -16,7 +16,7 @@ ${PYTHON}:
 
 install: ${PYTHON}
 	@echo "Installing img2planes in local virtualenv" >&2
-	@${PYTHON} -m pip install .
+	@${PYTHON} -m pip install -e .
 
 test: ${PYTHON} install
 	@${PYTHON} setup.py test
