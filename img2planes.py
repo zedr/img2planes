@@ -233,7 +233,7 @@ def main():
     elif args.format == 'array':
         print(img.as_c_array(name=args.name))
         if not args.no_colors:
-            print(img.as_c_colors())
+            print(img.as_c_colors(name=args.name + '_colors'))
     else:
         try:
             img._img.save(sys.stdout, args.format)
